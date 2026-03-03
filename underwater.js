@@ -43,28 +43,62 @@
     scene.appendChild(container);
 
     // 8 rays — varying angle, width, opacity, sway period
+    // Opacities are very low — rays should be barely-there hints of light.
+    // Durations are long — deep-underwater light shifts are slow.
     const configs = [
-      { angle: -38, width: 55,  opacity: 0.048, dur: 11.0, delay: 0    },
-      { angle: -24, width: 80,  opacity: 0.034, dur:  8.5, delay: -3.2 },
-      { angle: -12, width: 60,  opacity: 0.050, dur: 12.5, delay: -1.5 },
-      { angle:   0, width: 65,  opacity: 0.026, dur:  9.5, delay: -5.0 },
-      { angle:  10, width: 65,  opacity: 0.042, dur: 10.5, delay: -2.7 },
-      { angle:  22, width: 75,  opacity: 0.036, dur: 13.0, delay: -4.1 },
-      { angle:  34, width: 50,  opacity: 0.040, dur:  8.0, delay: -6.3 },
-      { angle:  46, width: 40,  opacity: 0.028, dur: 11.8, delay: -0.8 },
+      { angle: -38, width: 32,  opacity: 0.016, dur: 22.0, delay:   0.0 },
+      { angle: -24, width: 48,  opacity: 0.011, dur: 18.5, delay:  -6.4 },
+      { angle: -12, width: 36,  opacity: 0.018, dur: 25.5, delay:  -3.0 },
+      { angle:   0, width: 38,  opacity: 0.009, dur: 20.0, delay: -10.0 },
+      { angle:  10, width: 38,  opacity: 0.014, dur: 22.5, delay:  -5.4 },
+      { angle:  22, width: 44,  opacity: 0.012, dur: 27.0, delay:  -8.2 },
+      { angle:  34, width: 28,  opacity: 0.013, dur: 17.5, delay: -12.6 },
+      { angle:  46, width: 22,  opacity: 0.010, dur: 24.0, delay:  -1.6 },
     ];
+
+    // Keep references so the scroll handler can nudge angles
+    const rayEls = [];
 
     configs.forEach(cfg => {
       const r = el('div', 'uw-ray');
       Object.assign(r.style, {
-        width:           cfg.width + 'px',
-        opacity:         cfg.opacity,
-        '--ray-angle':   cfg.angle + 'deg',
+        width:              cfg.width + 'px',
+        opacity:            cfg.opacity,
+        '--ray-angle':      cfg.angle + 'deg',
+        '--ray-base-angle': cfg.angle,   // unitless number for scroll math
         animationDuration:  cfg.dur + 's',
-        animationDelay:    cfg.delay + 's',
+        animationDelay:     cfg.delay + 's',
       });
       container.appendChild(r);
+      rayEls.push({ el: r, baseAngle: cfg.angle });
     });
+
+    // ── Scroll-reactive angle shift ──────────────────────────────────────────
+    // As the user scrolls, rays shift angle very gently — like the perspective
+    // of a light source changing as you move deeper through water.
+    // Max shift: ±5° across the full scrollable height. Throttled to rAF.
+    let ticking = false;
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () {
+        const scrolled  = window.scrollY || document.documentElement.scrollTop;
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        // progress: 0 (top) → 1 (bottom)
+        const progress  = maxScroll > 0 ? Math.min(scrolled / maxScroll, 1) : 0;
+        // shift: -2.5deg at top, +2.5deg at bottom (centred at 0)
+        const shift     = (progress - 0.5) * 5;
+
+        rayEls.forEach(function (ray) {
+          const newAngle = ray.baseAngle + shift;
+          ray.el.style.setProperty('--ray-angle', newAngle + 'deg');
+        });
+        ticking = false;
+      });
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
   }
 
   // ============================================================

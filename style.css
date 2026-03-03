@@ -1304,9 +1304,12 @@ footer .logo::after { content: '🐟'; }
 }
 
 @keyframes uw-ray-sway {
-  0%   { opacity: 0.38; transform: rotate(calc(var(--ray-angle, 0deg) - 3deg)) scaleX(0.95); }
-  50%  { opacity: 0.85; }
-  100% { opacity: 0.42; transform: rotate(calc(var(--ray-angle, 0deg) + 3deg)) scaleX(1.05); }
+  /* opacity values here are multiplied by the element's own opacity.
+     Keep range tight (0.55 → 1.0 → 0.60) so the already-very-low
+     element opacity stays barely-there throughout the sway cycle. */
+  0%   { opacity: 0.55; transform: rotate(calc(var(--ray-angle, 0deg) - 2deg)) scaleX(0.96); }
+  50%  { opacity: 1.00; }
+  100% { opacity: 0.60; transform: rotate(calc(var(--ray-angle, 0deg) + 2deg)) scaleX(1.04); }
 }
 
 /* ── Seaweed ─────────────────────────────────────────────── */
