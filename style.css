@@ -251,159 +251,323 @@ nav {
   position: relative;
   width: 320px;
   height: 320px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-/* Glowing water circle behind fish */
-.fish-illustration::before {
+/* Aquarium: circular water viewport */
+.aquarium {
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  background: radial-gradient(ellipse at 50% 20%, #0a3d6b 0%, #051e3e 55%, #020c1e 100%);
+  box-shadow:
+    0 0 0 6px #0a3d6b,
+    0 0 0 10px #0d2a50,
+    0 8px 40px rgba(0, 80, 180, 0.55),
+    inset 0 0 60px rgba(0, 200, 255, 0.06);
+}
+
+/* Caustic light rays */
+.caustic {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ray {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 200px;
+  transform-origin: top center;
+  background: linear-gradient(to bottom, rgba(180, 230, 255, 0.22) 0%, transparent 100%);
+  border-radius: 0 0 50% 50%;
+  animation: ray-shimmer ease-in-out infinite;
+}
+
+.ray-1 { transform: rotate(-40deg); width: 14px; animation-duration: 7.0s; animation-delay:  0.0s; }
+.ray-2 { transform: rotate(-20deg); width: 22px; animation-duration: 5.5s; animation-delay: -2.0s; opacity: 0.8; }
+.ray-3 { transform: rotate(  0deg); width: 16px; animation-duration: 6.5s; animation-delay: -4.0s; }
+.ray-4 { transform: rotate( 20deg); width: 20px; animation-duration: 7.5s; animation-delay: -1.0s; opacity: 0.7; }
+.ray-5 { transform: rotate( 40deg); width: 12px; animation-duration: 5.0s; animation-delay: -3.0s; opacity: 0.9; }
+
+@keyframes ray-shimmer {
+  0%, 100% { opacity: 0.12; filter: blur(1px); }
+  50%       { opacity: 0.30; filter: blur(0px); }
+}
+
+/* Fish swim wrapper: anchored to center, animates vertical bob only */
+.fish-swim-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  z-index: 5;
+  animation: fish-bob 3.2s ease-in-out infinite;
+}
+
+@keyframes fish-bob {
+  0%, 100% { transform: translateY(0px);   }
+  50%       { transform: translateY(-12px); }
+}
+
+/* Fish body group: handles horizontal drift + tilt */
+.fish-body-group {
+  position: absolute;
+  width: 180px;
+  height: 110px;
+  top:  -55px;
+  left: -90px;
+  animation: fish-drift 3.2s ease-in-out infinite;
+}
+
+@keyframes fish-drift {
+  0%, 100% { transform: rotate(-2deg) translateX(0px); }
+  50%       { transform: rotate( 2deg) translateX(4px); }
+}
+
+/* Tail: sibling of fish-body, wags independently */
+.fish-tail {
+  position: absolute;
+  left: -28px;
+  top: 50%;
+  margin-top: -28px;
+  width: 0;
+  height: 0;
+  border-top:    28px solid transparent;
+  border-bottom: 28px solid transparent;
+  border-right:  36px solid #e85d04;
+  filter: drop-shadow(-3px 0 8px rgba(232, 93, 4, 0.7));
+  transform-origin: right center;
+  animation: tail-wag 0.45s ease-in-out infinite alternate;
+}
+
+@keyframes tail-wag {
+  from { transform: rotate(-18deg); }
+  to   { transform: rotate( 18deg); }
+}
+
+/* Fish body: vibrant orange clownfish oval */
+.fish-body {
+  position: absolute;
+  left: 30px;
+  top: 0;
+  width: 145px;
+  height: 110px;
+  background: linear-gradient(135deg, #ff8c00 0%, #e85d04 45%, #c94a00 100%);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  box-shadow:
+    0 0 20px 6px rgba(255, 100, 0, 0.55),
+    0 0 50px 10px rgba(255, 70, 0, 0.25),
+    inset 0 -6px 16px rgba(0, 0, 0, 0.18),
+    inset 0 4px 10px rgba(255, 200, 80, 0.28);
+}
+
+/* Gloss highlight */
+.fish-body::before {
   content: '';
   position: absolute;
-  width: 280px;
-  height: 280px;
+  top: 8px;
+  left: 20px;
+  right: 20px;
+  height: 35%;
   border-radius: 50%;
-  background: radial-gradient(circle, #c8eaff 0%, #ddf3ff 55%, transparent 80%);
-  animation: pulse 4s ease-in-out infinite;
+  background: linear-gradient(to bottom, rgba(255, 220, 160, 0.38) 0%, transparent 100%);
+  pointer-events: none;
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 0.9; }
-  50%       { transform: scale(1.05); opacity: 1; }
+/* White stripes */
+.stripe {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.90);
+  border: 1.5px solid rgba(0, 0, 0, 0.10);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
-.fish-body {
-  position: relative;
-  width: 160px;
-  height: 90px;
-  background: linear-gradient(135deg, #0099e6 0%, #005fa3 100%);
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  box-shadow: 0 8px 32px rgba(0, 119, 204, 0.35),
-              inset 0 -4px 12px rgba(0, 0, 0, 0.1);
-  animation: swim 3s ease-in-out infinite;
-  z-index: 2;
+.stripe-1 { left: 42px; width: 22px; top:  8px; bottom:  8px; }
+.stripe-2 { left: 76px; width: 18px; top: 14px; bottom: 14px; }
+
+/* Fin wrappers: set position; fins own their transform animation */
+.fin-top-wrapper {
+  position: absolute;
+  top: -28px;
+  left: 44px;
+  width: 34px;
+  height: 30px;
+  overflow: visible;
 }
 
-@keyframes swim {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50%       { transform: translateY(-10px) rotate(2deg); }
+.fin-pec-wrapper {
+  position: absolute;
+  bottom: -16px;
+  left: 52px;
+  width: 30px;
+  height: 26px;
+  overflow: visible;
+}
+
+.fish-fin {
+  width: 100%;
+  height: 100%;
+  transform-origin: bottom center;
+}
+
+.fin-top {
+  background: linear-gradient(180deg, #ff9a00 0%, #c94a00 100%);
+  border-radius: 50% 50% 0 0;
+  box-shadow: 0 0 10px rgba(255, 110, 0, 0.55);
+  animation: fin-wave 0.55s ease-in-out infinite alternate;
+}
+
+.fin-pec {
+  background: linear-gradient(180deg, #c94a00 0%, #ff9a00 100%);
+  border-radius: 0 0 50% 50%;
+  box-shadow: 0 0 8px rgba(255, 110, 0, 0.45);
+  animation: fin-wave 0.55s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes fin-wave {
+  from { transform: rotate(-12deg) scaleX(0.9); }
+  to   { transform: rotate(  8deg) scaleX(1.1); }
 }
 
 /* Eye */
 .fish-eye {
   position: absolute;
-  top: 20px;
-  right: 28px;
-  width: 18px;
-  height: 18px;
+  top: 18px;
+  right: 22px;
+  width: 22px;
+  height: 22px;
   background: #fff;
   border-radius: 50%;
-  box-shadow: inset -3px -2px 0 rgba(0,0,0,0.15);
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.18), inset 0 2px 4px rgba(0,0,0,0.08);
 }
 
-.fish-eye::after {
-  content: '';
+.fish-pupil {
   position: absolute;
-  top: 4px;
-  left: 4px;
-  width: 9px;
-  height: 9px;
-  background: #1a2b3c;
+  top: 5px;
+  left: 5px;
+  width: 11px;
+  height: 11px;
+  background: #1a1a2e;
   border-radius: 50%;
-  animation: blink 4s ease-in-out infinite;
+  animation: fish-blink 4.5s ease-in-out infinite;
 }
 
-@keyframes blink {
-  0%, 92%, 100% { transform: scaleY(1); }
-  95%            { transform: scaleY(0.1); }
+@keyframes fish-blink {
+  0%, 90%, 100% { transform: scaleY(1);    opacity: 1;   }
+  94%            { transform: scaleY(0.05); opacity: 0.6; }
+}
+
+.eye-shine {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 /* Mouth */
 .fish-mouth {
   position: absolute;
-  bottom: 22px;
-  right: 18px;
-  width: 12px;
-  height: 7px;
-  border-radius: 0 0 12px 12px;
-  border-bottom: 3px solid rgba(255,255,255,0.6);
-  border-left:   3px solid rgba(255,255,255,0.6);
-  border-right:  3px solid rgba(255,255,255,0.6);
-}
-
-/* Fins */
-.fish-fin {
-  position: absolute;
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 50%;
-}
-
-.fin-top {
-  top: -18px;
-  right: 55px;
-  width: 30px;
-  height: 28px;
-  background: linear-gradient(180deg, #33b5ff 0%, #0077cc 100%);
-  border-radius: 50% 50% 0 0;
-}
-
-.fin-bottom {
-  bottom: -14px;
-  right: 50px;
-  width: 24px;
-  height: 22px;
-  background: linear-gradient(180deg, #0077cc 0%, #33b5ff 100%);
-  border-radius: 0 0 50% 50%;
-}
-
-/* Tail */
-.fish-tail {
-  position: absolute;
-  left: -38px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-top:    28px solid transparent;
-  border-bottom: 28px solid transparent;
-  border-right:  42px solid #0077cc;
-  filter: drop-shadow(-2px 0 4px rgba(0,0,0,0.15));
+  bottom: 18px;
+  right: 16px;
+  width: 11px;
+  height: 6px;
+  border-radius: 0 0 10px 10px;
+  border-bottom: 2.5px solid rgba(255, 255, 255, 0.55);
+  border-left:   2.5px solid rgba(255, 255, 255, 0.55);
+  border-right:  2.5px solid rgba(255, 255, 255, 0.55);
 }
 
 /* Bubbles */
 .bubble {
   position: absolute;
   border-radius: 50%;
-  border: 2px solid rgba(0, 153, 230, 0.45);
-  background: rgba(255, 255, 255, 0.15);
-  animation: rise linear infinite;
+  background: transparent;
+  border: 1.5px solid rgba(180, 230, 255, 0.5);
+  box-shadow:
+    inset 2px 2px 4px rgba(255, 255, 255, 0.35),
+    inset -1px -1px 3px rgba(100, 200, 255, 0.2),
+    0 0 6px rgba(100, 200, 255, 0.2);
+  animation: bubble-rise linear infinite;
+  z-index: 4;
 }
 
-.bubble-1 {
-  width: 12px; height: 12px;
-  top: 60px; right: 20px;
-  animation-duration: 2.8s;
-  animation-delay: 0.3s;
+.bubble::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 200, 200, 0.15),
+    rgba(200, 255, 200, 0.15),
+    rgba(200, 200, 255, 0.15),
+    rgba(255, 255, 200, 0.15),
+    rgba(255, 200, 200, 0.15)
+  );
+  animation: bubble-spin 3s linear infinite;
 }
 
-.bubble-2 {
-  width: 8px; height: 8px;
-  top: 40px; right: 50px;
-  animation-duration: 2.2s;
-  animation-delay: 1.1s;
+@keyframes bubble-spin {
+  to { transform: rotate(360deg); }
 }
 
-.bubble-3 {
-  width: 16px; height: 16px;
-  top: 80px; right: 8px;
-  animation-duration: 3.4s;
-  animation-delay: 1.8s;
+@keyframes bubble-rise {
+  0%   { transform: translateY(0)      translateX(0px); opacity: 0;   }
+  10%  {                                                opacity: 0.9; }
+  90%  {                                                opacity: 0.7; }
+  100% { transform: translateY(-200px) translateX(6px); opacity: 0;   }
 }
 
-@keyframes rise {
-  0%   { transform: translateY(0) scale(1); opacity: 0.8; }
-  100% { transform: translateY(-90px) scale(1.3); opacity: 0; }
+.bubble-1 { width: 10px; height: 10px; bottom: 118px; left: 218px; animation-duration: 3.0s; animation-delay: 0.0s; }
+.bubble-2 { width:  7px; height:  7px; bottom: 132px; left: 226px; animation-duration: 2.4s; animation-delay: 0.8s; }
+.bubble-3 { width: 13px; height: 13px; bottom: 108px; left: 212px; animation-duration: 3.6s; animation-delay: 1.4s; }
+.bubble-4 { width:  9px; height:  9px; bottom: 125px; left: 222px; animation-duration: 2.8s; animation-delay: 2.1s; }
+.bubble-5 { width:  6px; height:  6px; bottom: 138px; left: 230px; animation-duration: 2.2s; animation-delay: 0.4s; }
+
+/* Sparkles */
+.sparkle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  animation: sparkle-twinkle ease-in-out infinite;
+  pointer-events: none;
+  z-index: 3;
 }
+
+.sparkle::before,
+.sparkle::after {
+  content: '';
+  position: absolute;
+  background: inherit;
+  border-radius: inherit;
+}
+
+.sparkle::before { inset: -1px 40%; }
+.sparkle::after  { inset: 40% -1px; }
+
+@keyframes sparkle-twinkle {
+  0%, 100% { transform: scale(0)   rotate(0deg);  opacity: 0; }
+  50%       { transform: scale(1.5) rotate(45deg); opacity: 1; }
+}
+
+.sparkle-1 { width: 6px; height: 6px; top:  40px; left:  60px; animation-duration: 2.5s; animation-delay: 0.0s; }
+.sparkle-2 { width: 5px; height: 5px; top:  80px; right: 50px; animation-duration: 3.1s; animation-delay: 0.7s; }
+.sparkle-3 { width: 7px; height: 7px; top:  55px; left:  85px; animation-duration: 2.8s; animation-delay: 1.3s; }
+.sparkle-4 { width: 4px; height: 4px; top:  30px; right: 70px; animation-duration: 2.2s; animation-delay: 1.9s; }
+.sparkle-5 { width: 5px; height: 5px; top:  65px; left:  45px; animation-duration: 3.4s; animation-delay: 2.5s; }
 
 /* ----- Use Cases ---------------------------------------- */
 .use-cases {
@@ -822,6 +986,5 @@ footer .logo::after { content: '🐟'; }
 @media (max-width: 480px) {
   .hero-content h1 { font-size: 2.25rem; }
   .fish-illustration { width: 240px; height: 240px; }
-  .fish-illustration::before { width: 210px; height: 210px; }
-  .fish-body { width: 130px; height: 72px; }
+  .aquarium { transform-origin: top left; transform: scale(0.75); }
 }
