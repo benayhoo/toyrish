@@ -221,5 +221,78 @@
     </div>
   </footer>
 
+  <!-- Page-wide floating bubbles -->
+  <div id="bubbles-layer" aria-hidden="true"></div>
+
+  <script>
+    (function () {
+      const layer = document.getElementById('bubbles-layer');
+
+      // Config — keep it subtle
+      const MIN_SIZE      = 6;    // px
+      const MAX_SIZE      = 22;   // px
+      const MIN_DURATION  = 7;    // seconds to float from bottom to top
+      const MAX_DURATION  = 14;
+      const MIN_INTERVAL  = 1800; // ms between spawns (min)
+      const MAX_INTERVAL  = 4200; // ms between spawns (max)
+      const MAX_ACTIVE    = 5;    // never more than this many bubbles at once
+
+      let active = 0;
+
+      function rand(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      function spawnBubble() {
+        if (active >= MAX_ACTIVE) return;
+
+        active++;
+
+        const size     = rand(MIN_SIZE, MAX_SIZE);
+        const duration = rand(MIN_DURATION, MAX_DURATION);
+        const xPct     = rand(3, 97); // % from left, keeping clear of edges
+        // Slight horizontal drift amount (±)
+        const drift    = rand(-40, 40); // px
+
+        const el = document.createElement('div');
+        el.className = 'page-bubble';
+
+        el.style.cssText = [
+          `width: ${size}px`,
+          `height: ${size}px`,
+          `left: ${xPct}%`,
+          `--drift: ${drift}px`,
+          `--duration: ${duration}s`,
+          // Vary the shimmer tint slightly per bubble
+          `--hue: ${Math.round(rand(180, 230))}`,
+        ].join(';');
+
+        layer.appendChild(el);
+
+        // Remove after animation completes (+small buffer)
+        const cleanup = (duration + 0.5) * 1000;
+        setTimeout(() => {
+          el.remove();
+          active--;
+        }, cleanup);
+      }
+
+      function scheduleNext() {
+        const delay = rand(MIN_INTERVAL, MAX_INTERVAL);
+        setTimeout(() => {
+          spawnBubble();
+          scheduleNext();
+        }, delay);
+      }
+
+      // Stagger the initial burst so page doesn't start empty
+      // then open the valve slowly
+      setTimeout(spawnBubble, 600);
+      setTimeout(spawnBubble, 1800);
+      setTimeout(spawnBubble, 3200);
+      scheduleNext();
+    })();
+  </script>
+
 </body>
 </html>

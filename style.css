@@ -74,6 +74,14 @@ body {
     radial-gradient(ellipse 80% 40% at 80% 90%, rgba(0, 196, 160, 0.07) 0%, transparent 60%);
 }
 
+/* Ensure all direct page sections sit above the fixed bubbles layer */
+body > header,
+body > section,
+body > footer {
+  position: relative;
+  z-index: 1;
+}
+
 a {
   color: var(--teal);
   text-decoration: none;
@@ -176,6 +184,7 @@ header {
   position: sticky;
   top: 0;
   z-index: 100;
+  isolation: isolate;
   background: rgba(5, 13, 26, 0.75);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
@@ -1150,6 +1159,104 @@ footer .logo::after { content: '🐟'; }
   font-size: 0.78rem;
   color: var(--text-dim);
   opacity: 0.6;
+}
+
+/* =========================================================
+   PAGE-WIDE FLOATING BUBBLES
+   ========================================================= */
+
+/* Fixed container that sits behind all page content */
+#bubbles-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;          /* behind content (body children stack above) */
+  overflow: hidden;
+}
+
+/* Each bubble is spawned by JS and gets these base styles */
+.page-bubble {
+  position: absolute;
+  bottom: -30px;       /* start just below the viewport */
+  border-radius: 50%;
+
+  /* Iridescent shell — matches the aquarium bubbles */
+  background: transparent;
+  border: 1.5px solid rgba(160, 220, 255, 0.45);
+  box-shadow:
+    inset  2px  2px 5px rgba(255, 255, 255, 0.30),
+    inset -1px -1px 3px rgba(100, 200, 255, 0.18),
+    0 0 8px  rgba(100, 200, 255, 0.14),
+    0 0 18px rgba(80,  180, 255, 0.06);
+
+  /* JS sets --duration and --drift via inline style */
+  animation: page-bubble-rise var(--duration, 10s) ease-in forwards;
+
+  /* Inner shimmer disc */
+  overflow: hidden;
+}
+
+/* Iridescent inner glow using the per-bubble --hue */
+.page-bubble::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    hsla(calc(var(--hue, 200) + 0),   80%, 80%, 0.10),
+    hsla(calc(var(--hue, 200) + 60),  80%, 80%, 0.10),
+    hsla(calc(var(--hue, 200) + 120), 80%, 80%, 0.10),
+    hsla(calc(var(--hue, 200) + 180), 80%, 80%, 0.10),
+    hsla(calc(var(--hue, 200) + 240), 80%, 80%, 0.10),
+    hsla(calc(var(--hue, 200) + 300), 80%, 80%, 0.10),
+    hsla(calc(var(--hue, 200) + 0),   80%, 80%, 0.10)
+  );
+  animation: page-bubble-spin calc(var(--duration, 10s) * 0.6) linear infinite;
+}
+
+/* Small specular highlight top-left */
+.page-bubble::after {
+  content: '';
+  position: absolute;
+  top: 18%;
+  left: 18%;
+  width: 28%;
+  height: 22%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  filter: blur(1px);
+  pointer-events: none;
+}
+
+@keyframes page-bubble-rise {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.75;       /* fade in quickly */
+  }
+  /* Gentle horizontal drift using a sine-ish 3-point path */
+  33% {
+    transform: translateY(-33vh) translateX(calc(var(--drift, 20px) * 0.5));
+    opacity: 0.65;
+  }
+  66% {
+    transform: translateY(-66vh) translateX(var(--drift, 20px));
+    opacity: 0.45;
+  }
+  90% {
+    opacity: 0.15;       /* fade out before reaching top */
+  }
+  100% {
+    transform: translateY(-105vh) translateX(calc(var(--drift, 20px) * 0.7));
+    opacity: 0;
+  }
+}
+
+@keyframes page-bubble-spin {
+  to { transform: rotate(360deg); }
 }
 
 /* =========================================================
